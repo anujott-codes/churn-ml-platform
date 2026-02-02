@@ -1,0 +1,65 @@
+# --------------------
+# Python
+# --------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# --------------------
+# Virtual Environments
+# --------------------
+venv/
+.venv/
+env/
+.env/
+env.bak/
+.conda/
+.conda_env/
+conda_env/
+
+# --------------------
+# Jupyter
+# --------------------
+.ipynb_checkpoints/
+
+# --------------------
+# Logs & Cache
+# --------------------
+*.log
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# --------------------
+# macOS
+# --------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# --------------------
+# IDEs & Editors
+# --------------------
+.vscode/
+.idea/
+*.swp
+*~
+
+# --------------------
+# OS / Misc
+# --------------------
+Thumbs.db
