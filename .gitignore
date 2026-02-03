@@ -63,3 +63,7 @@ Icon?
 # OS / Misc
 # --------------------
 Thumbs.db
+logs/
+logs/*
+data/
+reports/

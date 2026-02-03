@@ -10,12 +10,6 @@ FOLDERS = [
     "src",
     "src/config",
 
-    "src/etl",
-    "src/etl/extract",
-    "src/etl/validate",
-    "src/etl/transform",
-    "src/etl/load",
-
     "src/pipelines",
     "src/components",
     "src/mlops",
@@ -34,26 +28,9 @@ FOLDERS = [
 ]
 
 FILES = [
-    # Config
-    "src/config/database.py",
-    "src/config/settings.py",
-
-    # ETL components
-    "src/etl/extract/extract_raw.py",
-    "src/etl/validate/validate_data.py",
-    "src/etl/transform/feature_engineering.py",
-    "src/etl/load/load_raw.py",
-    "src/etl/load/load_features.py",
-
     # Pipelines
-    "src/pipelines/etl_pipeline.py",
     "src/pipelines/training_pipeline.py",
     "src/pipelines/prediction_pipeline.py",
-
-    # Model logic
-    "src/components/model_trainer.py",
-    "src/components/model_evaluator.py",
-    "src/components/model_predictor.py",
 
     # MLOps
     "src/mlops/model_registry.py",
