@@ -17,7 +17,7 @@ FOLDERS = [
     "src/etl/load",
 
     "src/pipelines",
-    "src/models",
+    "src/components",
     "src/mlops",
     "src/utils",
 
@@ -51,9 +51,9 @@ FILES = [
     "src/pipelines/prediction_pipeline.py",
 
     # Model logic
-    "src/models/train.py",
-    "src/models/evaluate.py",
-    "src/models/predict.py",
+    "src/components/model_trainer.py",
+    "src/components/model_evaluator.py",
+    "src/components/model_predictor.py",
 
     # MLOps
     "src/mlops/model_registry.py",
