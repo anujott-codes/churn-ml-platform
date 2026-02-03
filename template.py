@@ -12,16 +12,9 @@ FOLDERS = [
 
     "src/pipelines",
     "src/components",
-    "src/mlops",
     "src/utils",
 
-    # Application
-    "src/app",
-    "src/app/backend",
-    "src/app/frontend",
-
     # Testing & infra
-    "tests",
     "docker",
     ".github",
     ".github/workflows"
@@ -32,20 +25,9 @@ FILES = [
     "src/pipelines/training_pipeline.py",
     "src/pipelines/prediction_pipeline.py",
 
-    # MLOps
-    "src/mlops/model_registry.py",
-    "src/mlops/tracking.py",
-
     # Utilities
-    "src/utils/logger.py",
     "src/utils/helpers.py",
 
-    # Web app
-    "src/app/backend/api.py",
-    "src/app/frontend/dashboard.py",
-
-    # Tests
-    "tests/test_etl.py",
 
     # Infra
     "docker/Dockerfile",
