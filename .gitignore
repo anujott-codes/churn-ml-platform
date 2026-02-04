@@ -65,7 +65,4 @@ Icon?
 Thumbs.db
 logs/
 logs/*
-data/
-reports/
 artifacts/
-/data
