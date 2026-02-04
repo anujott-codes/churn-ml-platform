@@ -257,9 +257,9 @@ class FeatureEngineer:
     def run(self) -> Path:
         
         try:
-            logger.info("="*70)
+        
             logger.info(f"Starting feature engineering: {self.input_path.name}")
-            logger.info("="*70)
+           
 
             # Execute pipeline steps
             df = self._load_data()
@@ -276,14 +276,14 @@ class FeatureEngineer:
 
             
             logger.info("Feature engineering completed successfully")
-            logger.info(f"  Final shape: {self.final_shape[0]} rows × {self.final_shape[1]} columns")
-            logger.info(f"  Features created: {len(self.features_created)}")
-            logger.info(f"  Output: {self.output_path}")
+            logger.info(f"Final shape: {self.final_shape[0]} rows × {self.final_shape[1]} columns")
+            logger.info(f"Features created: {len(self.features_created)}")
+            logger.info(f"Output: {self.output_path}")
             
             
             return self.output_path
 
         except Exception as e:
             
-            logger.error(f"✗ Feature engineering failed: {str(e)}")
+            logger.error(f"Feature engineering failed: {str(e)}")
             raise ChurnPipelineException(e)

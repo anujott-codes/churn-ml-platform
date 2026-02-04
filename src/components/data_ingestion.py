@@ -5,10 +5,10 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 from src.config.data_source_config import (
     RAW_DATA_DIR,
     KAGGLE_DATASET,
-    KAGGLE_TRAIN_FILENAME,  # Original Kaggle filename
-    KAGGLE_TEST_FILENAME,   # Original Kaggle filename
-    TRAIN_FILENAME,         # Your standardized filename
-    TEST_FILENAME,          # Your standardized filename
+    KAGGLE_TRAIN_FILENAME,  
+    KAGGLE_TEST_FILENAME,   
+    TRAIN_FILENAME,         
+    TEST_FILENAME,          
 )
 
 def download_and_extract_kaggle_dataset(dataset: str, output_dir: Path) -> None:

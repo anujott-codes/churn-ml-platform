@@ -71,7 +71,7 @@ class RawDataValidator:
             raise ValueError(f"Missing required columns: {missing_cols}")
 
         if extra_cols:
-            logger.warning(f"Extra columns detected (will be ignored): {extra_cols}")
+            logger.warning(f"Extra columns detected: {extra_cols}")
         
         logger.info(f"All {len(expected_cols)} required columns present")
 
@@ -179,7 +179,7 @@ class RawDataValidator:
         minority_ratio = class_dist.min()
         if minority_ratio < self.min_minority_ratio:
             logger.warning(
-                f"⚠ Severe class imbalance detected: "
+                f"Severe class imbalance detected: "
                 f"minority class is {minority_ratio*100:.2f}% "
                 f"(threshold: {self.min_minority_ratio*100}%)"
             )
@@ -240,7 +240,7 @@ class RawDataValidator:
         """Copy validated file to staging directory."""
         self.staged_dir.mkdir(parents=True, exist_ok=True)
 
-        staged_path = self.staged_dir / self.raw_data_path.name
+        staged_path = self.staged_dir / f"staged_{self.raw_data_path.name}"
         copy2(self.raw_data_path, staged_path)
 
         logger.info(f"Validated data staged at: {staged_path}")
@@ -248,9 +248,7 @@ class RawDataValidator:
 
     def validate(self) -> Path:
         try:
-            logger.info("="*70)
             logger.info(f"Starting data validation: {self.raw_data_path.name}")
-            logger.info("="*70)
 
             # Run all validation checks
             self._validate_file_exists()
