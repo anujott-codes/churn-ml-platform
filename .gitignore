@@ -68,3 +68,4 @@ logs/*
 data/
 reports/
 artifacts/
+/data
