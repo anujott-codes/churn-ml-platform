@@ -10,7 +10,6 @@ from sklearn.compose import ColumnTransformer
 from src.config.transformation_config import (
     PROCESSED_DATA_DIR,
     TRANSFORMED_DATA_DIR,
-    ARTIFACTS_DIR,
     NUMERICAL_FEATURES,
     NOMINAL_CATEGORICAL_FEATURES,
     ORDINAL_CATEGORICAL_FEATURES,
@@ -117,7 +116,7 @@ class DataTransformation:
             test_out[TARGET_COLUMN] = y_test.values
 
             # Save transformed datasets
-            os.mkdirs(ARTIFACTS_DIR / "transformed", exist_ok=True, parents=True)
+           
             transformed_train_path = self.transformed_dir / TRANSFORMED_TRAIN_FILENAME
             transformed_test_path = self.transformed_dir / TRANSFORMED_TEST_FILENAME
 
