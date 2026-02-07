@@ -5,15 +5,17 @@ from src.components.data_validation import DataValidator
 from src.components.feature_engineering import FeatureEngineer
 from src.components.data_transformation import DataTransformation
 
-from src.config.data_source_config import (
+from src.config.basic_config import (
     RAW_DATA_DIR,
-    TRAIN_FILENAME,
-    TEST_FILENAME
-)
-from src.config.feature_config import (
     STAGED_DATA_DIR,
     PROCESSED_DATA_DIR
 )
+
+from src.config.data_source_config import (
+    TRAIN_FILENAME,
+    TEST_FILENAME
+)
+
 from src.exception import ChurnPipelineException
 from src.logging.logger import logger
 
