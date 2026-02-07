@@ -5,3 +5,10 @@ numpy>=1.24.0
 python-dotenv>=1.0.0
 dvc 
 dvc-s3
+ipykernel
+matplotlib
+numpy
+seaborn
+scikit-learn
+lightgbm
+joblib

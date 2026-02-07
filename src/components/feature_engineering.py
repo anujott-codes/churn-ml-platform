@@ -109,53 +109,12 @@ class FeatureEngineer:
         self.features_created.append(feature_name)
         return df
 
-    def _create_long_tenure_flag(self, df: pd.DataFrame) -> pd.DataFrame:
-       
-        threshold = FEATURE_THRESHOLDS["long_tenure_months"]
-        feature_name = "long_tenure_flag"
-        
-        df[feature_name] = (df["tenure"] >= threshold).astype(int)
-        
-        count = df[feature_name].sum()
-        pct = (count / len(df)) * 100
-        logger.info(f"  Created '{feature_name}' (>= {threshold} months): {count} customers ({pct:.1f}%)")
-        
-        self.features_created.append(feature_name)
-        return df
-
-    def _create_high_usage_flag(self, df: pd.DataFrame) -> pd.DataFrame:
-        
-        threshold = FEATURE_THRESHOLDS["high_usage_frequency"]
-        feature_name = "high_usage_flag"
-        
-        df[feature_name] = (df["usage_frequency"] >= threshold).astype(int)
-        
-        count = df[feature_name].sum()
-        pct = (count / len(df)) * 100
-        logger.info(f"  Created '{feature_name}' (>= {threshold}): {count} customers ({pct:.1f}%)")
-        
-        self.features_created.append(feature_name)
-        return df
-
-    def _create_interaction_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        
-        features_added = []
-        
-        # Tenure × Usage interaction
-        if "tenure_usage_interaction" in FEATURES_TO_CREATE:
-            df["tenure_usage_interaction"] = df["tenure"] * df["usage_frequency"]
-            features_added.append("tenure_usage_interaction")
-            self.features_created.append("tenure_usage_interaction")
-        
-        # Spend per month (avoid division by zero)
+    def _create_spend_per_month(self, df: pd.DataFrame) -> pd.DataFrame:
         if "spend_per_month" in FEATURES_TO_CREATE:
-            df["spend_per_month"] = df["total_spend"] / (df["tenure"] + 1)
-            features_added.append("spend_per_month")
+            df["spend_per_month"] = df["total_spend"] / (df["tenure"].replace(0, 1))
             self.features_created.append("spend_per_month")
-        
-        if features_added:
-            logger.info(f"  Created interaction features: {', '.join(features_added)}")
-        
+            logger.info("  Created feature: spend_per_month")
+    
         return df
 
     def _business_feature_engineering(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -169,17 +128,10 @@ class FeatureEngineer:
         if "payment_delay_flag" in FEATURES_TO_CREATE:
             df = self._create_payment_delay_flag(df)
         
-        if "long_tenure_flag" in FEATURES_TO_CREATE:
-            df = self._create_long_tenure_flag(df)
+        if "spend_per_month" in FEATURES_TO_CREATE:
+            df = self._create_spend_per_month(df)
         
-        if "high_usage_flag" in FEATURES_TO_CREATE:
-            df = self._create_high_usage_flag(df)
-        
-        # Create interaction/derived features
-        if any(f in FEATURES_TO_CREATE for f in ["tenure_usage_interaction", "spend_per_month"]):
-            df = self._create_interaction_features(df)
-        
-        logger.info(f"✓ Created {len(self.features_created)} new features")
+        logger.info(f"Created {len(self.features_created)} new features")
         
         return df
 
@@ -276,7 +228,7 @@ class FeatureEngineer:
 
             
             logger.info("Feature engineering completed successfully")
-            logger.info(f"Final shape: {self.final_shape[0]} rows × {self.final_shape[1]} columns")
+            logger.info(f"Final shape: {self.final_shape[0]} rows x {self.final_shape[1]} columns")
             logger.info(f"Features created: {len(self.features_created)}")
             logger.info(f"Output: {self.output_path}")
             

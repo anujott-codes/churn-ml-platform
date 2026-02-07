@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from src.components.data_ingestion import extract_raw_data
-from src.components.data_validation import RawDataValidator
+from src.components.data_ingestion import DataIngestion
+from src.components.data_validation import DataValidator
 from src.components.feature_engineering import FeatureEngineer
+from src.components.data_transformation import DataTransformation
 
 from src.config.data_source_config import (
     RAW_DATA_DIR,
@@ -40,7 +41,8 @@ class TrainingPipeline:
         logger.info("STAGE 1: DATA INGESTION")
         
         try:
-            extract_raw_data()
+            data_ingestion = DataIngestion()
+            data_ingestion.initiate_data_ingestion()
             logger.info("Data ingestion completed")
         except Exception as e:
             logger.error("Data ingestion failed")
@@ -51,14 +53,14 @@ class TrainingPipeline:
         
         try:
             logger.info("Validating TRAIN dataset")
-            train_validator = RawDataValidator(
+            train_validator = DataValidator(
                 raw_data_path=self.raw_train_path,
                 staged_dir=self.staged_dir
             )
             staged_train_path = train_validator.validate()
             
             logger.info("Validating TEST dataset")
-            test_validator = RawDataValidator(
+            test_validator = DataValidator(
                 raw_data_path=self.raw_test_path,
                 staged_dir=self.staged_dir
             )
@@ -100,6 +102,21 @@ class TrainingPipeline:
         except Exception as e:
             logger.error("Feature engineering failed")
             raise ChurnPipelineException(e)
+        
+    def run_data_transformation(self, processed_train_path: Path, processed_test_path: Path) -> dict:
+            logger.info("STAGE 4: DATA TRANSFORMATION") 
+            try:
+                data_transformer = DataTransformation(
+                    processed_train_path=processed_train_path,
+                    processed_test_path=processed_test_path
+                )
+                transformation_artifacts = data_transformer.initiate_data_transformation()
+                logger.info("Data transformation completed")
+                return transformation_artifacts
+            except Exception as e:
+                logger.error("Data transformation failed")
+                raise ChurnPipelineException(e)
+            
 
     def run(self) -> None:
         try:
@@ -113,6 +130,15 @@ class TrainingPipeline:
                 staged_train_path, 
                 staged_test_path
             )
+
+            transformation_artifacts = self.run_data_transformation(
+                processed_train_path, 
+                processed_test_path
+            )
+
+            train_path = transformation_artifacts["train_path"]
+            test_path = transformation_artifacts["test_path"]
+            preprocessor_path = transformation_artifacts["preprocessor_path"]
 
             logger.info("---------------TRAINING PIPELINE COMPLETED SUCCESSFULLY---------------")
 

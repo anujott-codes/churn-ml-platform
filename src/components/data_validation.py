@@ -16,7 +16,7 @@ from src.exception import ChurnPipelineException
 from src.logging.logger import logger
 
 
-class RawDataValidator:    
+class DataValidator:    
     def __init__(
         self, 
         raw_data_path: Path, 

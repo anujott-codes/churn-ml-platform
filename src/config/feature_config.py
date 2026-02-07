@@ -8,17 +8,13 @@ DROP_COLUMNS = [
 
 FEATURE_THRESHOLDS = {
     "high_support_calls": 4,        
-    "payment_delay_flag": 0,        
-    "long_tenure_months": 12,       
-    "high_usage_frequency": 20,                  
+    "payment_delay_flag": 0,                               
 }
 
 
 FEATURES_TO_CREATE = [
     "high_support_calls",           
-    "payment_delay_flag",           
-    "long_tenure_flag",             
-    "high_usage_flag",              
+    "payment_delay_flag",                        
     "spend_per_month",              
 ]
 
