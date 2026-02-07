@@ -5,12 +5,15 @@ import json
 
 import pandas as pd
 
+from src.config.basic_config import (
+    STAGED_DATA_DIR,
+    VALIDATION_REPORTS_DIR
+)
+
 from src.config.schema import (
     RAW_DATA_SCHEMA,
     TARGET_COLUMN,
     VALIDATION_CONFIG,
-    STAGED_DATA_DIR,
-    VALIDATION_REPORTS_DIR
 )
 from src.exception import ChurnPipelineException
 from src.logging.logger import logger

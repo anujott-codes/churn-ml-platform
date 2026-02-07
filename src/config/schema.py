@@ -25,13 +25,5 @@ VALIDATION_CONFIG = {
     "min_minority_class_ratio": 0.05,   
 }
 
-# Data directories (if not already in data_source_config)
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-STAGED_DATA_DIR = DATA_DIR / "staged"  
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
-# Reports directory
-REPORTS_DIR = PROJECT_ROOT / "reports"
-VALIDATION_REPORTS_DIR = REPORTS_DIR / "validation"  
+ 

@@ -2,13 +2,16 @@ from pathlib import Path
 import json
 import pandas as pd
 
+from src.config.basic_config import (
+    PROCESSED_DATA_DIR,
+    FEATURE_REPORTS_DIR
+)
+
 from src.config.feature_config import (
     DROP_COLUMNS,
     TARGET_COLUMN,
     FEATURE_THRESHOLDS,
     FEATURES_TO_CREATE,
-    PROCESSED_DATA_DIR,
-    FEATURE_REPORTS_DIR
 )
 from src.exception import ChurnPipelineException
 from src.logging.logger import logger

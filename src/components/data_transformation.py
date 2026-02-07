@@ -1,24 +1,28 @@
 import pandas as pd
 import joblib
 from pathlib import Path
-import os
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder
 from sklearn.compose import ColumnTransformer
 
-from src.config.transformation_config import (
-    PROCESSED_DATA_DIR,
+from src.config.basic_config import (
+    PROCESSED_DATA_DIR, 
     TRANSFORMED_DATA_DIR,
+    PREPROCESSING_DIR,
+)
+
+from src.config.transformation_config import (
     NUMERICAL_FEATURES,
     NOMINAL_CATEGORICAL_FEATURES,
     ORDINAL_CATEGORICAL_FEATURES,
-    TARGET_COLUMN,
     ORDINAL_CATEGORIES,
-    PREPROCESSING_DIR,
     TRANSFORMED_TRAIN_FILENAME,
     TRANSFORMED_TEST_FILENAME
 )
+
+from src.config.feature_config import TARGET_COLUMN
+
 from src.exception import ChurnPipelineException
 from src.logging.logger import logger
 

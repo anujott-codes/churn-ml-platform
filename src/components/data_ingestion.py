@@ -2,8 +2,9 @@ import zipfile
 from pathlib import Path
 from kaggle.api.kaggle_api_extended import KaggleApi
 
+from src.config.basic_config import RAW_DATA_DIR
+
 from src.config.data_source_config import (
-    RAW_DATA_DIR,
     KAGGLE_DATASET,
     KAGGLE_TRAIN_FILENAME,  
     KAGGLE_TEST_FILENAME,   
