@@ -67,3 +67,5 @@ logs/
 logs/*
 artifacts/
 reports/
+*.ipynb_checkpoints
+notebooks/
