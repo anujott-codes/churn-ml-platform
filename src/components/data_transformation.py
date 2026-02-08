@@ -35,10 +35,14 @@ class DataTransformation:
     Saves preprocessor to artifacts/preprocessing
     """
 
-    def __init__(self, processed_train_path: Path, processed_test_path: Path):
+    def __init__(self, processed_train_path: Path, 
+                 processed_test_path: Path, 
+                 transformed_dir: Path = TRANSFORMED_DATA_DIR, 
+                 preprocessing_dir: Path = PREPROCESSING_DIR):
+        
         self.processed_dir = PROCESSED_DATA_DIR
-        self.transformed_dir = TRANSFORMED_DATA_DIR
-        self.preprocessing_dir = PREPROCESSING_DIR
+        self.transformed_dir = transformed_dir
+        self.preprocessing_dir = preprocessing_dir
         self.processed_train_path = processed_train_path
         self.processed_test_path = processed_test_path
 

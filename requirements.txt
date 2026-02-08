@@ -12,3 +12,6 @@ seaborn
 scikit-learn
 lightgbm
 joblib
+pytest
+pytest-mock
+pytest-cov

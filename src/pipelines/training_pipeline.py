@@ -8,7 +8,11 @@ from src.components.data_transformation import DataTransformation
 from src.config.basic_config import (
     RAW_DATA_DIR,
     STAGED_DATA_DIR,
-    PROCESSED_DATA_DIR
+    PROCESSED_DATA_DIR,
+    VALIDATION_REPORTS_DIR,
+    FEATURE_REPORTS_DIR,
+    TRANSFORMED_DATA_DIR,
+    PREPROCESSING_DIR
 )
 
 from src.config.data_source_config import (
@@ -37,6 +41,10 @@ class TrainingPipeline:
         self.raw_test_path = RAW_DATA_DIR / TEST_FILENAME
         self.staged_dir = STAGED_DATA_DIR
         self.processed_dir = PROCESSED_DATA_DIR
+        self.validation_reports_dir = VALIDATION_REPORTS_DIR
+        self.feature_reports_dir = FEATURE_REPORTS_DIR
+        self.transformed_data_dir = TRANSFORMED_DATA_DIR
+        self.preprocessing_dir = PREPROCESSING_DIR
 
     def run_data_ingestion(self) -> None:
         
@@ -57,7 +65,8 @@ class TrainingPipeline:
             logger.info("Validating TRAIN dataset")
             train_validator = DataValidator(
                 raw_data_path=self.raw_train_path,
-                staged_dir=self.staged_dir
+                staged_dir=self.staged_dir,
+                reports_dir=self.validation_reports_dir
             )
             staged_train_path = train_validator.validate()
             
@@ -86,7 +95,9 @@ class TrainingPipeline:
             logger.info("Processing TRAIN dataset")
             train_engineer = FeatureEngineer(
                 input_path=staged_train_path,
-                output_filename="train_processed.csv"
+                output_filename="train_processed.csv",
+                processed_dir=self.processed_dir,
+                reports_dir=self.feature_reports_dir
             )
             processed_train_path = train_engineer.run()
             
@@ -110,7 +121,9 @@ class TrainingPipeline:
             try:
                 data_transformer = DataTransformation(
                     processed_train_path=processed_train_path,
-                    processed_test_path=processed_test_path
+                    processed_test_path=processed_test_path,
+                    transformed_dir=self.transformed_data_dir,
+                    preprocessing_dir=self.preprocessing_dir
                 )
                 transformation_artifacts = data_transformer.initiate_data_transformation()
                 logger.info("Data transformation completed")

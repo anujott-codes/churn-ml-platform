@@ -24,6 +24,7 @@ class DataValidator:
         self, 
         raw_data_path: Path, 
         staged_dir: Path = STAGED_DATA_DIR,
+        reports_dir: Path = VALIDATION_REPORTS_DIR,
         min_rows: int = None,
         max_missing_pct: float = None,
         min_minority_ratio: float = None
@@ -31,7 +32,7 @@ class DataValidator:
         self.raw_data_path = raw_data_path
         self.staged_dir = staged_dir
         self.schema: Dict[str, str] = RAW_DATA_SCHEMA
-        self.reports_dir = VALIDATION_REPORTS_DIR
+        self.reports_dir = reports_dir
         
         # Use config defaults if not provided
         self.min_rows = min_rows or VALIDATION_CONFIG["min_rows"]

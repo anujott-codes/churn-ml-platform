@@ -19,11 +19,12 @@ from src.logging.logger import logger
 
 class FeatureEngineer:
     
-    def __init__(self, input_path: Path, output_filename: str):
+    def __init__(self, input_path: Path, output_filename: str, processed_dir: Path = PROCESSED_DATA_DIR, reports_dir: Path = FEATURE_REPORTS_DIR):
        
         self.input_path = input_path
-        self.output_path = PROCESSED_DATA_DIR / output_filename
-        self.reports_dir = FEATURE_REPORTS_DIR
+        self.processed_dir = processed_dir
+        self.output_path = processed_dir / output_filename
+        self.reports_dir = reports_dir
         self.initial_shape = None
         self.final_shape = None
         self.features_created = []
