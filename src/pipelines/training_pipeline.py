@@ -4,6 +4,7 @@ from src.components.data_ingestion import DataIngestion
 from src.components.data_validation import DataValidator
 from src.components.feature_engineering import FeatureEngineer
 from src.components.data_transformation import DataTransformation
+from src.components.model_tuner import ModelTuner
 
 from src.config.basic_config import (
     RAW_DATA_DIR,
@@ -132,6 +133,17 @@ class TrainingPipeline:
                 logger.error("Data transformation failed")
                 raise ChurnPipelineException(e)
             
+    def run_model_tuning(self) -> dict:
+        logger.info("STAGE 5: MODEL TUNING")
+        try:
+            model_tuner = ModelTuner()
+            best_params = model_tuner.tune()
+            logger.info("Model tuning completed")
+            return best_params
+        except Exception as e:
+            logger.error("Model tuning failed")
+            raise ChurnPipelineException(e)
+            
 
     def run(self) -> None:
         try:
@@ -154,6 +166,8 @@ class TrainingPipeline:
             train_path = transformation_artifacts["train_path"]
             test_path = transformation_artifacts["test_path"]
             preprocessor_path = transformation_artifacts["preprocessor_path"]
+
+            best_params = self.run_model_tuning()
 
             logger.info("---------------TRAINING PIPELINE COMPLETED SUCCESSFULLY---------------")
 
