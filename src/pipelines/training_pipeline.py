@@ -5,6 +5,7 @@ from src.components.data_validation import DataValidator
 from src.components.feature_engineering import FeatureEngineer
 from src.components.data_transformation import DataTransformation
 from src.components.model_tuner import ModelTuner
+from src.components.model_trainer import ModelTrainer
 
 from src.config.basic_config import (
     RAW_DATA_DIR,
@@ -13,12 +14,18 @@ from src.config.basic_config import (
     VALIDATION_REPORTS_DIR,
     FEATURE_REPORTS_DIR,
     TRANSFORMED_DATA_DIR,
-    PREPROCESSING_DIR
+    PREPROCESSING_DIR,
+    MODEL_REPORTS_DIR
 )
 
 from src.config.data_source_config import (
     TRAIN_FILENAME,
     TEST_FILENAME
+)
+
+from src.config.tuner_config import (
+    TRAIN_DATA_FILENAME,
+    BEST_PARAMS_FILENAME
 )
 
 from src.exception import ChurnPipelineException
@@ -46,6 +53,8 @@ class TrainingPipeline:
         self.feature_reports_dir = FEATURE_REPORTS_DIR
         self.transformed_data_dir = TRANSFORMED_DATA_DIR
         self.preprocessing_dir = PREPROCESSING_DIR
+        self.train_data_path = TRANSFORMED_DATA_DIR / TRAIN_DATA_FILENAME
+        self.best_params_path = MODEL_REPORTS_DIR / BEST_PARAMS_FILENAME
 
     def run_data_ingestion(self) -> None:
         
@@ -144,6 +153,20 @@ class TrainingPipeline:
             logger.error("Model tuning failed")
             raise ChurnPipelineException(e)
             
+        
+    def run_model_training(self,train_data_path: Path,best_params_path: Path) -> Path:
+        logger.info("STAGE 6: MODEL TRAINING")
+        try:
+            model_trainer = ModelTrainer(
+                train_data_path=train_data_path,
+                best_params_path=best_params_path
+            )
+            model_path = model_trainer.train_model()
+            logger.info("Model training completed")
+            return model_path
+        except Exception as e:
+            logger.error("Model training failed")
+            raise ChurnPipelineException(e)
 
     def run(self) -> None:
         try:
@@ -168,6 +191,11 @@ class TrainingPipeline:
             preprocessor_path = transformation_artifacts["preprocessor_path"]
 
             best_params = self.run_model_tuning()
+
+            model_path = self.run_model_training(
+                train_data_path=self.train_data_path,
+                best_params_path=self.best_params_path
+            )
 
             logger.info("---------------TRAINING PIPELINE COMPLETED SUCCESSFULLY---------------")
 
