@@ -1,6 +1,6 @@
 outs:
-- md5: 4af7339f86f9fcae435504af57cf231a.dir
-  size: 26730974
+- md5: d4a3f108635822cfee2e61d0c32b3554.dir
+  size: 34841265
   nfiles: 2
   hash: md5
   path: staged
