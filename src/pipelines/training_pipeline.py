@@ -6,6 +6,7 @@ from src.components.feature_engineering import FeatureEngineer
 from src.components.data_transformation import DataTransformation
 from src.components.model_tuner import ModelTuner
 from src.components.model_trainer import ModelTrainer
+from src.components.model_evaluator import ModelEvaluator
 
 from src.config.basic_config import (
     RAW_DATA_DIR,
@@ -167,6 +168,17 @@ class TrainingPipeline:
         except Exception as e:
             logger.error("Model training failed")
             raise ChurnPipelineException(e)
+        
+    def run_model_evaluation(self) -> None:
+        logger.info("STAGE 7: MODEL EVALUATION")
+        try:
+            model_evaluator = ModelEvaluator()
+            report,cm = model_evaluator.evaluate()
+            return report,cm
+            logger.info("Model evaluation completed")
+        except Exception as e:
+            logger.error("Model evaluation failed")
+            raise ChurnPipelineException(e)
 
     def run(self) -> None:
         try:
@@ -196,6 +208,8 @@ class TrainingPipeline:
                 train_data_path=self.train_data_path,
                 best_params_path=self.best_params_path
             )
+
+            evaluation_report,cm = self.run_model_evaluation()
 
             logger.info("---------------TRAINING PIPELINE COMPLETED SUCCESSFULLY---------------")
 

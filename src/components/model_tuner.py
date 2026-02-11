@@ -3,9 +3,10 @@ from pathlib import Path
 
 import optuna
 import pandas as pd
+import numpy as np
 import lightgbm as lgb
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
 
 from src.config.feature_config import TARGET_COLUMN
@@ -60,115 +61,116 @@ class ModelTuner:
             X = df.drop(columns=[TARGET_COLUMN])
             y = df[TARGET_COLUMN]
 
-            X_train, X_valid, y_train, y_valid = train_test_split(
-                X,
-                y,
-                test_size=self.test_size,
-                random_state=self.random_state,
-                stratify=y
-            )
-
-            return X_train, X_valid, y_train, y_valid
+            return X, y
 
         except Exception as e:
             logger.error(f"Error loading training data: {e}")
             raise ChurnPipelineException(e)
 
-    def objective(self, trial, X_train, y_train, X_valid, y_valid):
 
-        # Handle imbalance
-        pos = y_train.sum()
-        neg = len(y_train) - pos
-        scale_pos_weight = neg / pos if pos > 0 else 1.0
+    def objective(self, trial, X, y):
 
-        # Suggest depth first
-        max_depth = trial.suggest_int(
-            "max_depth",
-            self.params_dict["max_depth"][0],
-            self.params_dict["max_depth"][1]
+        skf = StratifiedKFold(
+            n_splits=5,
+            shuffle=True,
+            random_state=self.random_state
         )
 
-        # Enforce valid num_leaves constraint
-        max_leaves_limit = 2 ** max_depth
-        num_leaves = trial.suggest_int(
-            "num_leaves",
-            self.params_dict["num_leaves"][0],
-            min(self.params_dict["num_leaves"][1], max_leaves_limit)
-        )
+        auc_scores = []
 
-        params = {
-            "objective": "binary",
-            "boosting_type": "gbdt",
-            "verbosity": -1,
-            "random_state": self.random_state,
-            "scale_pos_weight": scale_pos_weight,
+        for train_idx, valid_idx in skf.split(X, y):
 
-            "max_depth": max_depth,
-            "num_leaves": num_leaves,
+            X_train, X_valid = X.iloc[train_idx], X.iloc[valid_idx]
+            y_train, y_valid = y.iloc[train_idx], y.iloc[valid_idx]
 
-            "learning_rate": trial.suggest_float(
-                "learning_rate",
-                self.params_dict["learning_rate"][0],
-                self.params_dict["learning_rate"][1],
-                log=True
-            ),
+            pos = y_train.sum()
+            neg = len(y_train) - pos
+            scale_pos_weight = neg / pos if pos > 0 else 1.0
 
-            "n_estimators": trial.suggest_int(
-                "n_estimators",
-                self.params_dict["n_estimators"][0],
-                self.params_dict["n_estimators"][1]
-            ),
+            max_depth = trial.suggest_int(
+                "max_depth",
+                self.params_dict["max_depth"][0],
+                self.params_dict["max_depth"][1]
+            )
 
-            "min_child_samples": trial.suggest_int(
-                "min_child_samples",
-                self.params_dict["min_child_samples"][0],
-                self.params_dict["min_child_samples"][1]
-            ),
+            max_leaves_limit = 2 ** max_depth
+            num_leaves = trial.suggest_int(
+                "num_leaves",
+                self.params_dict["num_leaves"][0],
+                min(self.params_dict["num_leaves"][1], max_leaves_limit)
+            )
 
-            "subsample": trial.suggest_float(
-                "subsample",
-                self.params_dict["subsample"][0],
-                self.params_dict["subsample"][1]
-            ),
+            params = {
+                "objective": "binary",
+                "boosting_type": "gbdt",
+                "verbosity": -1,
+                "random_state": self.random_state,
+                "scale_pos_weight": scale_pos_weight,
 
-            "colsample_bytree": trial.suggest_float(
-                "colsample_bytree",
-                self.params_dict["colsample_bytree"][0],
-                self.params_dict["colsample_bytree"][1]
-            ),
+                "max_depth": max_depth,
+                "num_leaves": num_leaves,
 
-            "reg_alpha": trial.suggest_float(
-                "reg_alpha",
-                self.params_dict["reg_alpha"][0],
-                self.params_dict["reg_alpha"][1]
-            ),
+                "learning_rate": trial.suggest_float(
+                    "learning_rate",
+                    self.params_dict["learning_rate"][0],
+                    self.params_dict["learning_rate"][1],
+                    log=True
+                ),
 
-            "reg_lambda": trial.suggest_float(
-                "reg_lambda",
-                self.params_dict["reg_lambda"][0],
-                self.params_dict["reg_lambda"][1]
-            ),
-        }
+                "n_estimators": trial.suggest_int(
+                    "n_estimators",
+                    self.params_dict["n_estimators"][0],
+                    self.params_dict["n_estimators"][1]
+                ),
 
-        model = lgb.LGBMClassifier(**params)
+                "min_child_samples": trial.suggest_int(
+                    "min_child_samples",
+                    self.params_dict["min_child_samples"][0],
+                    self.params_dict["min_child_samples"][1]
+                ),
 
-        model.fit(
-            X_train,
-            y_train,
-            eval_set=[(X_valid, y_valid)],
-            eval_metric="auc",
-            callbacks=[
-                lgb.early_stopping(self.early_stopping_rounds),
-                lgb.log_evaluation(0)
-            ]
-        )
+                "subsample": trial.suggest_float(
+                    "subsample",
+                    self.params_dict["subsample"][0],
+                    self.params_dict["subsample"][1]
+                ),
 
-        preds = model.predict_proba(X_valid)[:, 1]
-        auc = roc_auc_score(y_valid, preds)
+                "colsample_bytree": trial.suggest_float(
+                    "colsample_bytree",
+                    self.params_dict["colsample_bytree"][0],
+                    self.params_dict["colsample_bytree"][1]
+                ),
 
-        
-        trial.set_user_attr("best_iteration", model.best_iteration_)
-        return auc
+                "reg_alpha": trial.suggest_float(
+                    "reg_alpha",
+                    self.params_dict["reg_alpha"][0],
+                    self.params_dict["reg_alpha"][1]
+                ),
+
+                "reg_lambda": trial.suggest_float(
+                    "reg_lambda",
+                    self.params_dict["reg_lambda"][0],
+                    self.params_dict["reg_lambda"][1]
+                ),
+            }
+
+            model = lgb.LGBMClassifier(**params)
+
+            model.fit(
+                X_train,
+                y_train,
+                eval_set=[(X_valid, y_valid)],
+                eval_metric="auc",
+                callbacks=[
+                    lgb.early_stopping(self.early_stopping_rounds),
+                    lgb.log_evaluation(0)
+                ]
+            )
+
+            preds = model.predict_proba(X_valid)[:, 1]
+            auc_scores.append(roc_auc_score(y_valid, preds))
+
+        return np.mean(auc_scores)
 
     def save_reports(self, study, best_params):
 
@@ -190,7 +192,8 @@ class ModelTuner:
 
     def tune(self):
 
-        X_train, X_valid, y_train, y_valid = self.load_data()
+        X, y = self.load_data()
+
 
         sampler = optuna.samplers.TPESampler(
             seed=self.random_state
@@ -204,10 +207,8 @@ class ModelTuner:
         study.optimize(
             lambda trial: self.objective(
                 trial,
-                X_train,
-                y_train,
-                X_valid,
-                y_valid
+                X,
+                y
             ),
             n_trials=self.n_trials
         )
@@ -215,10 +216,6 @@ class ModelTuner:
         best_trial = study.best_trial
         best_params = best_trial.params
 
-        # Inject optimal tree count
-        best_params["n_estimators"] = best_trial.user_attrs["best_iteration"]
-
-        # Add fixed params
         best_params.update({
             "objective": "binary",
             "boosting_type": "gbdt",
