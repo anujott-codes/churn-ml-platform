@@ -185,8 +185,8 @@ class TrainingPipeline:
         try:
             model_evaluator = ModelEvaluator()
             report,cm = model_evaluator.evaluate()
-            return report,cm
             logger.info("Model evaluation completed")
+            return report,cm
         except Exception as e:
             logger.error("Model evaluation failed")
             raise ChurnPipelineException(e)
@@ -240,7 +240,7 @@ class TrainingPipeline:
                     model = pickle.load(f)
                 mlflow.sklearn.log_model(model, artifact_path="model")
 
-                mlflow.log_artifact(str(self.best_params_path), artifact_path="params")
+                mlflow.log_artifact(str(self.best_params_path), artifact_path="params",registered_model_name="CustomerChurnModel_")
 
             # evaluation artifacts
                 mlflow.log_artifact(str(self.train_data_path), artifact_path="data")
