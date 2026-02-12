@@ -52,6 +52,10 @@ class ModelEvaluator:
         self.test_data_path = test_data_path
         self.reports_dir = reports_dir
         self.threshold = threshold
+        
+        if not 0 <= self.threshold <= 1:
+            raise ChurnPipelineException("Threshold must be between 0 and 1.")
+
         self.metrics_dir = metrics_dir
 
         self.report_path = self.reports_dir / EVALUATION_REPORT_FILENAME
@@ -83,7 +87,7 @@ class ModelEvaluator:
             raise ChurnPipelineException(f"Error loading test data: {e}")
 
     def compute_precision_at_k(self, y_true, y_proba):
-        k = int(len(y_proba) * TOP_K_PERCENT)
+        k = max(1, int(len(y_proba) * TOP_K_PERCENT))
         indices = np.argsort(y_proba)[::-1][:k]
         return y_true.iloc[indices].mean()
 

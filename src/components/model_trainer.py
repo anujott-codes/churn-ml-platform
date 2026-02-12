@@ -87,7 +87,7 @@ class ModelTrainer:
         }
 
         if self.model_type not in model_registry:
-            raise ChurnPipelineException(...)
+            raise ChurnPipelineException(f"Unsupported model type: {self.model_type}")
         return model_registry[self.model_type](**params)
 
     def save_model(self, model):
