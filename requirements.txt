@@ -16,3 +16,7 @@ pytest
 pytest-mock
 pytest-cov
 optuna
+mlflow
+dagshub
+mlflow[extras]
+python-dotenv

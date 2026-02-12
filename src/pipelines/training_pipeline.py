@@ -1,4 +1,5 @@
 from pathlib import Path
+import pickle
 
 from src.components.data_ingestion import DataIngestion
 from src.components.data_validation import DataValidator
@@ -29,8 +30,18 @@ from src.config.tuner_config import (
     BEST_PARAMS_FILENAME
 )
 
+import mlflow
+import mlflow.sklearn
+from src.config.mlflow_config import (
+    MLFLOW_TRACKING_URI,
+    MLFLOW_EXPERIMENT_NAME
+)
+
 from src.exception import ChurnPipelineException
 from src.logging.logger import logger
+
+from dotenv import load_dotenv
+load_dotenv()
 
 
 class TrainingPipeline:
@@ -182,40 +193,64 @@ class TrainingPipeline:
 
     def run(self) -> None:
         try:
-            
             logger.info("---------------TRAINING PIPELINE STARTED---------------")
-            self.run_data_ingestion()
 
-            staged_train_path, staged_test_path = self.run_data_validation()
+            mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+            mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
-            processed_train_path, processed_test_path = self.run_feature_engineering(
-                staged_train_path, 
-                staged_test_path
-            )
+            with mlflow.start_run():
 
-            transformation_artifacts = self.run_data_transformation(
-                processed_train_path, 
-                processed_test_path
-            )
+                self.run_data_ingestion()
 
-            train_path = transformation_artifacts["train_path"]
-            test_path = transformation_artifacts["test_path"]
-            preprocessor_path = transformation_artifacts["preprocessor_path"]
+                staged_train_path, staged_test_path = self.run_data_validation()
 
-            best_params = self.run_model_tuning()
+                processed_train_path, processed_test_path = self.run_feature_engineering(
+                    staged_train_path,
+                    staged_test_path
+                )
 
-            model_path = self.run_model_training(
-                train_data_path=self.train_data_path,
-                best_params_path=self.best_params_path
-            )
+                transformation_artifacts = self.run_data_transformation(
+                    processed_train_path,
+                    processed_test_path
+                )
 
-            evaluation_report,cm = self.run_model_evaluation()
+                best_params = self.run_model_tuning()
 
-            logger.info("---------------TRAINING PIPELINE COMPLETED SUCCESSFULLY---------------")
+                mlflow.log_params(best_params)
+
+                model_path = self.run_model_training(
+                    train_data_path=self.train_data_path,
+                    best_params_path=self.best_params_path
+                )
+
+                evaluation_report, cm = self.run_model_evaluation()
+
+            # Log metrics
+                mlflow.log_metrics({
+                    "roc_auc": evaluation_report["roc_auc"],
+                    "pr_auc": evaluation_report["pr_auc"],
+                    "precision": evaluation_report["precision"],
+                    "recall": evaluation_report["recall"],
+                    "f1_score": evaluation_report["f1_score"],
+                    "accuracy": evaluation_report["accuracy"],
+                    "precision_at_k": evaluation_report["precision_at_k"],
+                })
+
+                with open(model_path, "rb") as f:
+                    model = pickle.load(f)
+                mlflow.sklearn.log_model(model, artifact_path="model")
+
+                mlflow.log_artifact(str(self.best_params_path), artifact_path="params")
+
+            # evaluation artifacts
+                mlflow.log_artifact(str(self.train_data_path), artifact_path="data")
+
+                logger.info("---------------TRAINING PIPELINE COMPLETED SUCCESSFULLY---------------")
 
         except Exception as e:
             logger.error("---------------TRAINING PIPELINE FAILED---------------")
             raise ChurnPipelineException(e)
+
 
 
 if __name__ == "__main__":
