@@ -1,4 +1,3 @@
-from pathlib import Path
 
 TARGET_COLUMN = "churn"
 

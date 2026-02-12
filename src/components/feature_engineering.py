@@ -81,7 +81,7 @@ class FeatureEngineer:
         if rows_dropped > 0:
             logger.info(f"Data cleaned: {initial_rows} → {final_rows} rows ({rows_dropped} removed)")
         else:
-            logger.info(f"Data cleaned: No rows removed")
+            logger.info("Data cleaned: No rows removed")
         
         return df
 

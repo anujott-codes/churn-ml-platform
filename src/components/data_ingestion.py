@@ -94,7 +94,7 @@ class DataIngestion:
             (self.output_dir / KAGGLE_TRAIN_FILENAME).unlink()
             (self.output_dir / KAGGLE_TEST_FILENAME).unlink()
             zip_path.unlink()
-            logger.info(f"Removed temporary files")
+            logger.info("Removed temporary files")
             logger.info("Data extraction and re-splitting completed successfully")
             
         except Exception as e:

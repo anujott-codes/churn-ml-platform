@@ -209,7 +209,7 @@ class TrainingPipeline:
                     staged_test_path
                 )
 
-                transformation_artifacts = self.run_data_transformation(
+                self.run_data_transformation(
                     processed_train_path,
                     processed_test_path
                 )

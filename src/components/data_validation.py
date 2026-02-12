@@ -102,7 +102,7 @@ class DataValidator:
                 mismatches.append(f"{col}: expected {expected_dtype}, got {actual_dtype}")
         
         if mismatches:
-            logger.warning(f"Data type mismatches detected:\n  " + "\n  ".join(mismatches))
+            logger.warning("Data type mismatches detected:\n  " + "\n  ".join(mismatches))
         else:
             logger.info("All column data types match schema")
 
@@ -174,7 +174,7 @@ class DataValidator:
         class_dist = df[TARGET_COLUMN].value_counts(normalize=True)
         
         logger.info(
-            f"Target distribution:\n" +
+            "Target distribution:\n" +
             "\n".join([f"  Class {int(cls)}: {count} ({dist*100:.2f}%)" 
                       for cls, (count, dist) in enumerate(zip(class_counts, class_dist))])
         )

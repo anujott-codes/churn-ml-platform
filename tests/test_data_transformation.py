@@ -1,7 +1,6 @@
 import pandas as pd
 import pytest
 import joblib
-from pathlib import Path
 
 from src.components.data_transformation import DataTransformation
 from src.exception import ChurnPipelineException

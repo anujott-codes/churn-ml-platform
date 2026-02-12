@@ -26,7 +26,7 @@ def create_dummy_dataset(path: Path, n_samples: int = 100):
 
 def test_load_data_success(tmp_path):
     data_path = tmp_path / "train.csv"
-    df = create_dummy_dataset(data_path)
+    create_dummy_dataset(data_path)
 
     tuner = ModelTuner(
         train_data_path=data_path,
@@ -61,7 +61,7 @@ def test_load_data_missing_target(tmp_path):
 
 def test_objective_returns_float(tmp_path):
     data_path = tmp_path / "train.csv"
-    df = create_dummy_dataset(data_path)
+    create_dummy_dataset(data_path)
 
     tuner = ModelTuner(
         train_data_path=data_path,

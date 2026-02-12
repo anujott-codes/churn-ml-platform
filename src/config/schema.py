@@ -1,4 +1,3 @@
-from pathlib import Path
 
 # Schema definition
 RAW_DATA_SCHEMA = {

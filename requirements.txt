@@ -20,3 +20,4 @@ mlflow
 dagshub
 mlflow[extras]
 python-dotenv
+ruff
