@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import pytest
 from pathlib import Path
+from sklearn.pipeline import Pipeline
 
 from src.components.model_trainer import ModelTrainer
 from src.config.feature_config import TARGET_COLUMN
@@ -14,10 +15,27 @@ def create_dummy_dataset(path: Path, n_samples: int = 100):
     np.random.seed(42)
 
     df = pd.DataFrame({
-        "feature_1": np.random.randn(n_samples),
-        "feature_2": np.random.randn(n_samples),
-        "feature_3": np.random.randint(0, 5, n_samples),
-        TARGET_COLUMN: np.random.randint(0, 2, n_samples)
+        # Numerical
+        "age": [25, 30, 35, 40],
+        "tenure": [1, 2, 3, 4],
+        "usage_frequency": [10, 20, 30, 40],
+        "support_calls": [0, 1, 2, 3],
+        "payment_delay": [0, 1, 0, 2],
+        "total_spend": [100, 200, 300, 400],
+        "last_interaction": [5, 4, 3, 2],
+        "high_support_calls": [0, 0, 1, 1],
+        "payment_delay_flag": [0, 1, 0, 1],
+        "spend_per_month": [100, 100, 100, 100],
+
+        # Nominal
+        "gender": ["Male", "Female", "Male", "Female"],
+        "subscription_type": ["Basic", "Pro", "Premium", "Basic"],
+
+        # Ordinal
+        "contract_length": ["Monthly", "Quaterly", "Yearly", "Monthly"],
+
+        # Target
+        TARGET_COLUMN: [0, 1, 0, 1]
     })
 
     df.to_csv(path, index=False)
@@ -28,11 +46,12 @@ def create_best_params(path: Path):
     params = {
         "n_estimators": 200,
         "objective": "binary",
-        "random_state": 42,
-        "max_depth": 3
+        "random_state": 42
     }
+
     with open(path, "w") as f:
         json.dump(params, f)
+
     return params
 
 
@@ -51,7 +70,7 @@ def test_load_data_success(tmp_path):
     assert TARGET_COLUMN not in X.columns
     assert len(X) == len(y)
     assert y.name == TARGET_COLUMN
-    assert X.shape[1] == 3
+    assert X.shape[1] == 13
 
 
 def test_load_data_missing_target(tmp_path):
@@ -97,6 +116,7 @@ def test_load_best_params_missing_file(tmp_path):
 def test_load_best_params_invalid_structure(tmp_path):
     params_path = tmp_path / "params.json"
 
+    # Missing required keys
     with open(params_path, "w") as f:
         json.dump({"n_estimators": 200}, f)
 
@@ -110,7 +130,7 @@ def test_load_best_params_invalid_structure(tmp_path):
         trainer.load_best_params()
 
 
-def test_train_model_creates_artifacts(tmp_path):
+def test_train_model_creates_full_pipeline_and_artifacts(tmp_path):
     data_path = tmp_path / "train.csv"
     params_path = tmp_path / "params.json"
 
@@ -125,37 +145,43 @@ def test_train_model_creates_artifacts(tmp_path):
 
     model_path = trainer.train_model()
 
-    # Model file created
+    # ---- Model file exists ----
     assert model_path.exists()
 
-    # Metadata file created
+    # ---- Metadata exists ----
     assert trainer.metadata_path.exists()
 
-    # Schema file created
+    # ---- Schema exists ----
     assert trainer.schema_path.exists()
 
-    # Validate metadata structure
+    # ---- Validate saved pipeline ----
+    with open(model_path, "rb") as f:
+        pipeline = pickle.load(f)
+
+    assert isinstance(pipeline, Pipeline)
+    assert "preprocessor" in pipeline.named_steps
+    assert "model" in pipeline.named_steps
+
+    # ---- Validate metadata ----
     with open(trainer.metadata_path) as f:
         metadata = json.load(f)
 
     assert metadata["model_type"] == trainer.model_type
-    assert metadata["train_rows"] == 100
-    assert metadata["n_features"] == 3
+    assert metadata["train_rows"] == 4
+    assert metadata["n_raw_features"] == 13
     assert "training_timestamp" in metadata
     assert "best_params" in metadata
 
-    # Validate schema
+    # scale_pos_weight must be injected
+    assert "scale_pos_weight" in metadata["best_params"]
+
+    # ---- Validate schema ----
     with open(trainer.schema_path) as f:
         schema = json.load(f)
 
-    assert len(schema) == 3
+    assert isinstance(schema, list)
+    assert len(schema) == 13
     assert TARGET_COLUMN not in schema
-
-    # Validate model can be loaded
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
-
-    assert hasattr(model, "predict")
 
 
 def test_build_model_invalid_type(tmp_path):
