@@ -1,4 +1,3 @@
-from pathlib import Path
 import pickle
 
 from src.components.data_ingestion import DataIngestion

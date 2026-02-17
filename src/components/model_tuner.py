@@ -8,7 +8,6 @@ import lightgbm as lgb
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
-from sklearn.pipeline import Pipeline
 
 from src.components.data_transformation import DataTransformation
 from src.config.feature_config import TARGET_COLUMN

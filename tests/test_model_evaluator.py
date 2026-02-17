@@ -87,7 +87,7 @@ def test_load_pipeline_failure(tmp_path):
 
 def test_load_test_data_success(tmp_path):
     test_path = tmp_path / "test.csv"
-    df = create_test_dataset(test_path, n_samples=50)
+    create_test_dataset(test_path, n_samples=50)
 
     evaluator = ModelEvaluator(
         model_path=tmp_path / "model.pkl",
