@@ -1,6 +1,3 @@
-TRANSFORMED_TRAIN_FILENAME = "transformed_train.csv"
-TRANSFORMED_TEST_FILENAME = "transformed_test.csv"
-
 # Numerical Features
 NUMERICAL_FEATURES = ['age', 'tenure', 'usage_frequency', 'support_calls', 'payment_delay', 'total_spend', 'last_interaction', 'high_support_calls', 'payment_delay_flag', 'spend_per_month']
 

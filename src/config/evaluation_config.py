@@ -1,5 +1,5 @@
 # Test data filename
-TEST_DATA_FILENAME = "transformed_test.csv"
+TEST_DATA_FILENAME = "test_processed.csv"
 
 # Evaluation report
 EVALUATION_REPORT_FILENAME = "evaluation_report.json"
@@ -13,4 +13,4 @@ PR_CURVE_FILENAME = "pr_curve.png"
 DEFAULT_THRESHOLD = 0.5
 
 # Top-k evaluation 
-TOP_K_PERCENT = 0.2  # top 20% highest probability customers
+TOP_K_PERCENT = 0.2  

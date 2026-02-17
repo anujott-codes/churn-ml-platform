@@ -1,4 +1,4 @@
-TRAIN_DATA_FILENAME = "transformed_train.csv"
+TRAIN_DATA_FILENAME = "train_processed.csv"
 
 N_TRIALS = 50
 TEST_SIZE = 0.2

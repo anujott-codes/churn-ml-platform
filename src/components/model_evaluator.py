@@ -20,11 +20,8 @@ from sklearn.metrics import (
 )
 
 from src.config.feature_config import TARGET_COLUMN
-
-from src.config.basic_config import TRANSFORMED_DATA_DIR, MODEL_DIR, EVALUATION_REPORTS_DIR, METRICS_DIR
-
+from src.config.basic_config import PROCESSED_DATA_DIR, MODEL_DIR, EVALUATION_REPORTS_DIR, METRICS_DIR
 from src.config.trainer_config import MODEL_FILENAME
-
 from src.config.evaluation_config import (
     TEST_DATA_FILENAME,
     EVALUATION_REPORT_FILENAME,
@@ -43,20 +40,19 @@ class ModelEvaluator:
     def __init__(
         self,
         model_path: Path = MODEL_DIR / MODEL_FILENAME,
-        test_data_path: Path = TRANSFORMED_DATA_DIR / TEST_DATA_FILENAME,
+        test_data_path: Path = PROCESSED_DATA_DIR / TEST_DATA_FILENAME,
         reports_dir: Path = EVALUATION_REPORTS_DIR,
         threshold: float = DEFAULT_THRESHOLD,
-        metrics_dir: Path = METRICS_DIR
+        metrics_dir: Path = METRICS_DIR,
     ):
         self.model_path = model_path
         self.test_data_path = test_data_path
         self.reports_dir = reports_dir
         self.threshold = threshold
-        
+        self.metrics_dir = metrics_dir
+
         if not 0 <= self.threshold <= 1:
             raise ChurnPipelineException("Threshold must be between 0 and 1.")
-
-        self.metrics_dir = metrics_dir
 
         self.report_path = self.reports_dir / EVALUATION_REPORT_FILENAME
         self.conf_matrix_path = self.metrics_dir / CONFUSION_MATRIX_FILENAME
@@ -66,23 +62,27 @@ class ModelEvaluator:
         self.reports_dir.mkdir(parents=True, exist_ok=True)
         self.metrics_dir.mkdir(parents=True, exist_ok=True)
 
-    def load_model(self):
+    def load_pipeline(self):
         try:
             with open(self.model_path, "rb") as f:
                 return pickle.load(f)
         except Exception as e:
-            raise ChurnPipelineException(f"Error loading model: {e}")
+            raise ChurnPipelineException(f"Error loading pipeline: {e}")
 
     def load_test_data(self):
         try:
             data = pd.read_csv(self.test_data_path)
+
             if TARGET_COLUMN not in data.columns:
                 raise ChurnPipelineException(
                     f"{TARGET_COLUMN} not found in test dataset."
                 )
+
             X = data.drop(TARGET_COLUMN, axis=1)
             y = data[TARGET_COLUMN]
+
             return X, y
+
         except Exception as e:
             raise ChurnPipelineException(f"Error loading test data: {e}")
 
@@ -95,10 +95,10 @@ class ModelEvaluator:
         try:
             logger.info("Starting model evaluation...")
 
-            model = self.load_model()
+            pipeline = self.load_pipeline()
             X_test, y_test = self.load_test_data()
 
-            y_proba = model.predict_proba(X_test)[:, 1]
+            y_proba = pipeline.predict_proba(X_test)[:, 1]
             y_pred = (y_proba >= self.threshold).astype(int)
 
             # Core metrics
@@ -110,10 +110,8 @@ class ModelEvaluator:
             accuracy = accuracy_score(y_test, y_pred)
             precision_at_k = self.compute_precision_at_k(y_test, y_proba)
 
-            # Confusion matrix
             cm = confusion_matrix(y_test, y_pred)
 
-            # Save plots
             self._save_confusion_matrix(cm)
             self._save_roc_curve(y_test, y_proba)
             self._save_pr_curve(y_test, y_proba)
@@ -139,7 +137,7 @@ class ModelEvaluator:
                 json.dump(report, f, indent=4)
 
             logger.info("Model evaluation completed successfully.")
-            return report,cm
+            return report, cm
 
         except Exception as e:
             logger.error(f"Error during model evaluation: {e}")
