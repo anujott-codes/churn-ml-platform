@@ -53,7 +53,7 @@ class DataTransformation:
                 ],
                 remainder="passthrough"
             )
-
+            preprocessor.set_output(transform="pandas")
             logger.info("Preprocessing pipeline built successfully")
 
             return preprocessor

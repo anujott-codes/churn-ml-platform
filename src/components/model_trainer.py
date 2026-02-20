@@ -155,7 +155,7 @@ class ModelTrainer:
             logger.info(f"Pipeline saved at: {self.model_path}")
             logger.info("Pipeline training completed successfully.")
 
-            return self.model_path
+            return self.model_path, X_train, y_train
 
         except Exception as e:
             logger.error(f"Error during pipeline training: {e}")

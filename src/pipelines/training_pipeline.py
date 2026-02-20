@@ -1,4 +1,5 @@
 import pickle
+from mlflow.models.signature import infer_signature
 
 from src.components.data_ingestion import DataIngestion
 from src.components.data_validation import DataValidator
@@ -19,6 +20,10 @@ from src.config.basic_config import (
 from src.config.data_source_config import (
     TRAIN_FILENAME,
     TEST_FILENAME
+)
+
+from src.config.feature_config import (
+    TARGET_COLUMN,
 )
 
 from src.config.tuner_config import (
@@ -54,6 +59,8 @@ class TrainingPipeline:
 
         self.train_data_path = PROCESSED_DATA_DIR / TRAIN_DATA_FILENAME
         self.best_params_path = MODEL_REPORTS_DIR / BEST_PARAMS_FILENAME
+
+        self.target_column = TARGET_COLUMN
 
 
     # STAGE 1: INGESTION
@@ -125,9 +132,9 @@ class TrainingPipeline:
             best_params_path=self.best_params_path
         )
 
-        pipeline_path = model_trainer.train_model()
+        pipeline_path,X_train, y_train = model_trainer.train_model()
         logger.info("Model training completed")
-        return pipeline_path
+        return pipeline_path, X_train, y_train
 
 
     # STAGE 6: MODEL EVALUATION
@@ -166,12 +173,28 @@ class TrainingPipeline:
                 mlflow.log_params(best_params)
 
                 # 5. Training 
-                pipeline_path = self.run_model_training()
+                pipeline_path,X,y = self.run_model_training()
 
                 # 6. Evaluation
                 evaluation_report, cm = self.run_model_evaluation()
 
+                # Log full sklearn pipeline
+                with open(pipeline_path, "rb") as f:
+                    pipeline = pickle.load(f)
+
+                # infer input schema for MLflow signature
+                input_example = X.head(5)
+
                 # MLflow Logging
+                # Log model
+                mlflow.sklearn.log_model(
+                    sk_model=pipeline,
+                    name="model",
+                    input_example=input_example,
+                    registered_model_name="CustomerChurnModel" if evaluation_report["roc_auc"] >= 0.8 else None
+                )
+
+                # Log metrics
                 mlflow.log_metrics({
                     "roc_auc": evaluation_report["roc_auc"],
                     "pr_auc": evaluation_report["pr_auc"],
@@ -181,16 +204,9 @@ class TrainingPipeline:
                     "accuracy": evaluation_report["accuracy"],
                     "precision_at_k": evaluation_report["precision_at_k"],
                 })
+                
 
-                # Log full sklearn pipeline
-                with open(pipeline_path, "rb") as f:
-                    pipeline = pickle.load(f)
-
-                mlflow.sklearn.log_model(
-                    pipeline,
-                    artifact_path="model",
-                    registered_model_name="CustomerChurnModel"
-                )
+                mlflow.log_param("target_column", self.target_column)
 
                 mlflow.log_artifact(str(self.best_params_path), artifact_path="params")
                 mlflow.log_artifact(str(self.train_data_path), artifact_path="data")
