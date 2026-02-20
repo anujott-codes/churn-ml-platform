@@ -1,5 +1,4 @@
 import pickle
-from mlflow.models.signature import infer_signature
 
 from src.components.data_ingestion import DataIngestion
 from src.components.data_validation import DataValidator
