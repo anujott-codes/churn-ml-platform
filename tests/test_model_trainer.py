@@ -143,7 +143,7 @@ def test_train_model_creates_full_pipeline_and_artifacts(tmp_path):
         model_dir=tmp_path
     )
 
-    model_path = trainer.train_model()
+    model_path, X, y = trainer.train_model()
 
     # ---- Model file exists ----
     assert model_path.exists()
@@ -153,6 +153,12 @@ def test_train_model_creates_full_pipeline_and_artifacts(tmp_path):
 
     # ---- Schema exists ----
     assert trainer.schema_path.exists()
+
+    # ---- Validate training data ----
+    assert len(X) == 4
+    assert len(y) == 4
+    assert TARGET_COLUMN not in X.columns
+    assert y.name == TARGET_COLUMN
 
     # ---- Validate saved pipeline ----
     with open(model_path, "rb") as f:
