@@ -32,7 +32,7 @@ class ModelService:
 
             logger.info(f"Model loaded successfully with features: {self.feature_columns}")
 
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to load model from MLflow")
             raise
 

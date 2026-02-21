@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 from src.api.schemas.response import ModelInfoResponse
 from src.api.core.config import settings
 

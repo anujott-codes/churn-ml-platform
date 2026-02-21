@@ -1,7 +1,6 @@
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field
 from typing import Literal
 
-from src.api.core.config import settings
 
 class CustomerPredictionRequest(BaseModel):
     age: int = Field(..., description="Age of the customer", ge=18, le=100)

@@ -57,7 +57,7 @@ class PredictionService:
             df = df[self.feature_columns]
             return df
 
-        except Exception as e:
+        except Exception:
             logger.exception("Feature alignment failed")
             raise
 
