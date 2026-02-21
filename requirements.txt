@@ -21,3 +21,7 @@ dagshub
 mlflow[extras]
 python-dotenv
 ruff
+fastapi
+uvicorn
+pydantic
+pydantic-settings
