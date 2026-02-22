@@ -7,6 +7,7 @@ from src.api.core.logger import get_logger
 from src.api.services.model_service import ModelService
 from src.api.services.prediction_service import PredictionService
 from src.api.routers import predict, health, model_info
+from src.api.core.exceptions import register_exception_handlers
 
 logger = get_logger(__name__)
 
@@ -72,7 +73,10 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
         lifespan=lifespan
     )
+    # Register exception handlers
+    register_exception_handlers(app)
 
+    # Include API routers
     app.include_router(predict.router)
     app.include_router(health.router)
     app.include_router(model_info.router)

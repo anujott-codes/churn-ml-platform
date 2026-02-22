@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from src.api.schemas.response import HealthResponse
 from src.api.services.prediction_service import PredictionService
 from src.api.dependencies import get_prediction_service
+from src.api.core.exceptions import ModelNotLoadedException
 
 router = APIRouter(prefix="/api/v1")
 
@@ -10,12 +11,7 @@ router = APIRouter(prefix="/api/v1")
 async def health(
     service: PredictionService = Depends(get_prediction_service)
 ):
-    model_loaded = (
-        service is not None
-        and service.model_service is not None
-        and service.model_service.model is not None
-    )
+    if service.model_service.model is None:
+        raise ModelNotLoadedException("Model not loaded")
 
-    return {
-        "status": "OK" if model_loaded else "degraded"
-    }
+    return {"status": "OK"}
