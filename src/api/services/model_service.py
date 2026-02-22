@@ -47,14 +47,3 @@ class ModelService:
             raise RuntimeError("Model is not loaded")
 
         return self.model.predict(data)
-
-    def predict_proba(self, data):
-        if self.model is None:
-            raise RuntimeError("Model is not loaded")
-
-        if hasattr(self.model, "predict_proba"):
-            return self.model.predict_proba(data)
-
-        raise NotImplementedError("This model does not support predict_proba")
-
-    

@@ -12,6 +12,7 @@ from src.config.feature_config import (
     TARGET_COLUMN,
     FEATURE_THRESHOLDS,
     FEATURES_TO_CREATE,
+    INTEGER_FEATURES
 )
 from src.exception import ChurnPipelineException
 from src.logging.logger import logger
@@ -84,6 +85,19 @@ class FeatureEngineer:
             logger.info("Data cleaned: No rows removed")
         
         return df
+    
+    def _dtype_conversion(self, df: pd.DataFrame) -> pd.DataFrame:
+        logger.info("Converting data types for consistency")
+    
+        for col in INTEGER_FEATURES:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+                logger.info(f"  Converted '{col}' to integer")  # inside the loop
+            else:
+                logger.warning(f"  Column '{col}' not found in DataFrame, skipping")
+    
+        return df
+
 
     def _create_high_support_calls(self, df: pd.DataFrame) -> pd.DataFrame:
         
@@ -221,6 +235,7 @@ class FeatureEngineer:
             df = self._load_data()
             df = self._rename_columns(df)
             df = self._clean_data(df)
+            df = self._dtype_conversion(df)
             df = self._business_feature_engineering(df)
             df = self._drop_useless_columns(df)
             

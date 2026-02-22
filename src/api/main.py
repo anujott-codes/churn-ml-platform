@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
         app.state.prediction_service = prediction_service
 
         try:
-            dummy = pd.DataFrame([{
+            dummy = {
                 "age": 30,
                 "gender": "Male",
                 "tenure": 12,
@@ -46,8 +46,8 @@ async def lifespan(app: FastAPI):
                 "contract_length": "Annual",
                 "total_spend": 795,
                 "last_interaction": 14
-            }])
-            model_service.model.predict(dummy)
+            }
+            prediction_service.predict(dummy)
             logger.info("Model warmup inference successful.")
         except Exception:
             logger.warning("Model warmup skipped or failed.")

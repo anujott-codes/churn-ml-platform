@@ -42,7 +42,9 @@ class Settings(BaseSettings):
     PAYMENT_DELAY_THRESHOLD: int = 0
 
     # ----- Batch prediction settings -----
-    MAX_BATCH_ROWS = 10000
+    MAX_BATCH_ROWS: int = 10000
+    INTEGER_FEATURES: List[str] = ["age", "tenure", "usage_frequency","support_calls","payment_delay", "last_interaction", "high_support_calls","payment_delay_flag"]
+    FLOAT_FEATURES: List[str] = ["total_spend", "spend_per_month"]
 
 
 settings = Settings()

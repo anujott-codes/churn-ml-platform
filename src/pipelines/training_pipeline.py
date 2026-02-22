@@ -6,6 +6,7 @@ from src.components.feature_engineering import FeatureEngineer
 from src.components.model_tuner import ModelTuner
 from src.components.model_trainer import ModelTrainer
 from src.components.model_evaluator import ModelEvaluator
+from src.models.model_wrapper import ChurnModelWrapper
 
 from src.config.basic_config import (
     RAW_DATA_DIR,
@@ -186,9 +187,9 @@ class TrainingPipeline:
 
                 # MLflow Logging
                 # Log model
-                mlflow.sklearn.log_model(
-                    sk_model=pipeline,
+                mlflow.pyfunc.log_model(
                     name="model",
+                    python_model=ChurnModelWrapper(pipeline=pipeline),
                     input_example=input_example,
                     registered_model_name="CustomerChurnModel" if evaluation_report["roc_auc"] >= 0.8 else None
                 )

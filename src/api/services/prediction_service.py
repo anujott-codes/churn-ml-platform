@@ -46,6 +46,23 @@ class PredictionService:
         except Exception as e:
             logger.exception("Feature engineering failed")
             raise RuntimeError("Feature engineering error") from e
+        
+    def _enforce_dtypes(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Ensure correct dtypes for model input."""
+        try:
+            for col in settings.INTEGER_FEATURES:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
+
+            for col in settings.FLOAT_FEATURES:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0).astype(float)
+
+            return df
+
+        except Exception as e:
+            logger.exception("Failed to enforce dtypes")
+            raise RuntimeError("Data type enforcement error") from e
 
     def _align_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Ensure correct column order and presence."""
@@ -70,16 +87,19 @@ class PredictionService:
             # Step 2: Feature Engineering
             df = self._apply_feature_engineering(df)
 
-            # Step 3: Align features
+            # Step 3: Enforce dtypes
+            df = self._enforce_dtypes(df)
+
+            # Step 4: Align features
             df = self._align_features(df)
 
-            # Step 4: Model inference
-            preds = self.model_service.predict(df)
-            probs = self.model_service.predict_proba(df)
+            # Step 5: Model inference
+            probs = self.model_service.predict(df)
+            preds = [1 if probability >= settings.PREDICTION_THRESHOLD else 0 for probability in probs]
 
-            # Step 5: Extract values
+            # Step 6: Extract values
             prediction = int(preds[0])
-            probability = float(probs[0][1])  
+            probability = float(probs[0])  
 
             churn = probability >= settings.PREDICTION_THRESHOLD
 
@@ -107,24 +127,27 @@ class PredictionService:
         try:
             if df.empty:
                 raise ValueError("Input dataframe is empty")
-            
-            # Validate columns
-            self._validate_columns(df)
-
             # Step 1: Feature Engineering
             df = self._apply_feature_engineering(df)
+            
+            # Step 2: Validate columns
+            self._validate_columns(df)
 
-            # Step 2: Align features
+
+            # Step 3: Enforce dtypes
+            df = self._enforce_dtypes(df)
+
+            # Step 4: Align features
             df = self._align_features(df)
 
-            # Step 3: Model inference
-            preds = self.model_service.predict(df)
-            probs = self.model_service.predict_proba(df)
+            # Step 5: Model inference
+            probs = self.model_service.predict(df)
+            preds = [1 if probability >= settings.PREDICTION_THRESHOLD else 0 for probability in probs]
 
             results = []
 
             for pred, prob in zip(preds, probs):
-                probability = float(prob[1])
+                probability = float(prob)
                 churn = probability >= settings.PREDICTION_THRESHOLD
 
                 results.append({

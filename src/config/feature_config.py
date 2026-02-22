@@ -16,3 +16,12 @@ FEATURES_TO_CREATE = [
     "payment_delay_flag",                        
     "spend_per_month",              
 ]
+
+INTEGER_FEATURES = [
+    "age",
+    "tenure",
+    "usage_frequency",
+    "support_calls",
+    "payment_delay",
+    "last_interaction"
+]
