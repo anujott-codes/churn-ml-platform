@@ -46,7 +46,6 @@ class FakePredictionService:
 
 @pytest.fixture(autouse=True)
 def mock_mlflow():
-    from unittest.mock import patch, MagicMock
 
     with patch("src.api.services.model_service.mlflow.pyfunc.load_model") as mock_load, \
          patch("src.api.services.model_service.MlflowClient") as mock_client_class:
