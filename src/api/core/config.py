@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = ["*"]
 
     # ----- MLflow Settings -----
-    MLFLOW_TRACKING_URI: str
+    MLFLOW_TRACKING_URI: str = "http://localhost:5000"
     MLFLOW_MODEL_NAME: str = "CustomerChurnModel"
     MLFLOW_MODEL_ALIAS: str = "champion"
 
