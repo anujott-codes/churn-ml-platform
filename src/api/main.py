@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import mlflow
-import pandas as pd
 
 from src.api.core.config import settings
 from src.api.core.logger import get_logger
