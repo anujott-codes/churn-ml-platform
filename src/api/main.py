@@ -26,6 +26,7 @@ async def lifespan(app: FastAPI):
 
     try:
         mlflow.set_tracking_uri(settings.MLFLOW_TRACKING_URI)
+        mlflow.set_registry_uri(settings.MLFLOW_TRACKING_URI)
 
         model_service = ModelService(settings.MLFLOW_MODEL_URI)
         model_service.load_model()
