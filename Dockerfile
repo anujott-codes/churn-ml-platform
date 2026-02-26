@@ -20,10 +20,11 @@ FROM python:3.10-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
 
 WORKDIR /app
 
-# Install runtime system dependency for LightGBM
+# Install runtime dependency for LightGBM
 RUN apt-get update && apt-get install -y \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
@@ -31,9 +32,12 @@ RUN apt-get update && apt-get install -y \
 # Copy installed Python packages from builder
 COPY --from=builder /install /usr/local
 
-# Copy app source
+# Copy application source code 
 COPY . .
 
-EXPOSE 8000
+# Create non-root user
+RUN useradd -m appuser
+USER appuser
 
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+# Production server
+CMD ["gunicorn", "src.api.main:app","-k", "uvicorn.workers.UvicornWorker","--bind", "0.0.0.0:8080","--workers", "1","--timeout", "120"]
