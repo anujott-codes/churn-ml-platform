@@ -44,7 +44,4 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
     
-    - name: Trigger Render Deploy
-      run: |
-        echo "Triggering Render deploy..."
-        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+    
